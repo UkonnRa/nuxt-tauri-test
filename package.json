@@ -24,8 +24,10 @@
     "lint:stylelint": "stylelint '**/*.{vue,scss,css}' --ignore-path .prettierignore",
     "lint:prettier": "prettier '**/*.{vue,ts,js,json}'",
     "lint:eslint": "eslint '**/*.{vue,ts,js,mjs}'",
+    "lint:tsc": "yarn workspaces foreach --from 'packages/*' -Rpitv run lint:tsc",
     "lint:fix": "yarn lint:prettier --write && yarn lint:stylelint --fix && yarn lint:fix:rs && yarn lint:eslint --fix",
-    "lint": "yarn lint:prettier --check && yarn lint:stylelint && yarn lint:rs && yarn lint:eslint"
+    "lint": "yarn lint:prettier --check && yarn lint:stylelint && yarn lint:rs && yarn lint:eslint && yarn lint:tsc",
+    "build": "yarn workspaces foreach --from 'packages/*' -Rpitv run build"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",

@@ -1,12 +1,11 @@
 import { internalIpV4 } from "internal-ip";
 
-const mobile = !!/android|ios/.exec(process.env.TAURI_ENV_PLATFORM);
+const mobile = !!/android|ios/.exec(process.env.TAURI_ENV_PLATFORM as string);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
   extends: ["@white-rabbit/frontend-core"],
-  ssr: false,
   devServer: {
     port: 1420,
     host: mobile ? "0.0.0.0" : undefined,

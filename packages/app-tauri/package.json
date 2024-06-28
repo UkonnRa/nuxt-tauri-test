@@ -4,12 +4,13 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
+    "build": "tauri build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "lint:tsc": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@primevue/themes": "4.0.0-rc.3",

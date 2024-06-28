@@ -18,6 +18,7 @@ export default [
       "coverage/",
       "target/",
       "**/.nuxt/",
+      "**/.output/",
       "packages/app-tauri/src-tauri/gen/",
       "packages/app-tauri/src-tauri/capabilities/",
     ],

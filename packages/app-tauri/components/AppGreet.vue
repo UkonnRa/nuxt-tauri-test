@@ -12,9 +12,12 @@ async function greet() {
 </script>
 
 <template>
-  <form class="row" @submit.prevent="greet">
-    <input id="greet-input" v-model="name" placeholder="Enter a name..." />
-    <button type="submit">New Greet</button>
+  <form class="flex gap-2" @submit.prevent="greet">
+    <FloatLabel>
+      <InputText id="name" v-model="name" />
+      <label for="name">Enter a name...</label>
+    </FloatLabel>
+    <Button label="Submit" type="submit" icon="pi pi-check"></Button>
   </form>
 
   <AppMessage :model-value="greetMsg"></AppMessage>

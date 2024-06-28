@@ -11,8 +11,15 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
-  "dependencies": {
+  "peerDependencies": {
+    "@primevue/themes": "4.0.0-rc.2",
     "nuxt": "^3.12.2",
+    "primevue": "4.0.0-rc.2",
+    "tailwindcss-primeui": "*",
     "vue": "^3.4.31"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.12.0",
+    "@primevue/nuxt-module": "4.0.0-rc.3"
   }
 }

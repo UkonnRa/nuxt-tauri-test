@@ -10,7 +10,9 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "tauri": "tauri",
-    "lint:tsc": "vue-tsc --noEmit"
+    "lint:tsc": "vue-tsc --noEmit",
+    "lint:eslint": "eslint .",
+    "lint:fix:eslint": "eslint . --fix"
   },
   "dependencies": {
     "@primevue/themes": "4.0.0-rc.3",

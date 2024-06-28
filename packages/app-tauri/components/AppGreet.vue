@@ -17,8 +17,8 @@ async function greet() {
       <InputText id="name" v-model="name" />
       <label for="name">Enter a name...</label>
     </FloatLabel>
-    <Button label="Submit" type="submit" icon="pi pi-check"></Button>
+    <Button label="Submit" type="submit" icon="pi pi-check" />
   </form>
 
-  <AppMessage :model-value="greetMsg"></AppMessage>
+  <AppMessage :model-value="greetMsg" />
 </template>

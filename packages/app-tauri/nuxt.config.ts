@@ -4,7 +4,6 @@ const mobile = !!/android|ios/.exec(process.env.TAURI_ENV_PLATFORM as string);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
   extends: ["@white-rabbit/frontend-core"],
   devServer: {
     port: 1420,

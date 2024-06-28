@@ -7,7 +7,7 @@ async fn greet(name: String) -> String {
   let timestamp = DateTime::from_timestamp(secs as i64, nsecs).unwrap();
 
   format!(
-    "Hello, {}! You've been greeted from Rust, with ID = {} in Timestamp = {}!",
+    "New Hello, {}! You've been greeted from Rust, with ID = {} in Timestamp = {}!",
     name, id, timestamp
   )
 }

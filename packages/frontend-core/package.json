@@ -1,0 +1,18 @@
+{
+  "name": "@white-rabbit/frontend-core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./nuxt.config.ts",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "nuxt": "^3.12.2",
+    "vue": "^3.4.31"
+  }
+}

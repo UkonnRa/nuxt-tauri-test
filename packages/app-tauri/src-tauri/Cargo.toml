@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
 edition = "2021"
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
@@ -12,13 +11,13 @@ name = "app_tauri_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.0.0-beta", features = [] }
+tauri-build = { version = "2.0.0-beta.17", features = [] }
 
 [dependencies]
-tauri = { version = "2.0.0-beta", features = [] }
-tauri-plugin-shell = "2.0.0-beta"
+backend-core = { path = "../../../crates/backend-core" }
+chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-backend-core = { path = "../../../crates/backend-core" }
+tauri = { version = "2.0.0-beta.22", features = [] }
+tauri-plugin-shell = "2.0.0-beta.7"
 uuid = { version = "1.9", features = ["serde", "v7", "macro-diagnostics"] }
-chrono = { version = "0.4", features = ["serde"] }

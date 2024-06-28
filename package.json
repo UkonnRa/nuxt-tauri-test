@@ -18,7 +18,14 @@
   "scripts": {
     "postinstall": "husky",
     "upgrade": "yarn upgrade-interactive && cargo update && cargo upgrade --incompatible --pinned",
-    "dev:tauri": "yarn workspace @white-rabbit/app-tauri run tauri dev"
+    "dev:tauri": "yarn workspace @white-rabbit/app-tauri run tauri dev",
+    "lint:rs": "cargo fmt --check && cargo clippy",
+    "lint:fix:rs": "cargo sort -w && cargo fmt && cargo clippy --fix --allow-dirty --allow-staged",
+    "lint:stylelint": "stylelint '**/*.{vue,scss,css}' --ignore-path .prettierignore",
+    "lint:prettier": "prettier '**/*.{vue,ts,js,json}'",
+    "lint:eslint": "eslint '**/*.{vue,ts,js,mjs}'",
+    "lint:fix": "yarn lint:prettier --write && yarn lint:stylelint --fix && yarn lint:fix:rs && yarn lint:eslint --fix",
+    "lint": "yarn lint:prettier --check && yarn lint:stylelint && yarn lint:rs && yarn lint:eslint"
   },
   "dependencies": {
     "@commitlint/cli": "^19.3.0",

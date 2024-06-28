@@ -1,0 +1,7 @@
+dist/
+node_modules/
+coverage/
+target/
+.yarn/
+packages/app-tauri/src-tauri/capabilities/
+packages/app-tauri/src-tauri/gen/

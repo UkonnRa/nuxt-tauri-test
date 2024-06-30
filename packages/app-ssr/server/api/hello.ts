@@ -1,12 +1,40 @@
+import {
+  HelloRequest,
+  HelloServiceClient,
+} from "../proto/gen/whiterabbit/helloworld/v1/helloworld";
+import { ChannelCredentials } from "@grpc/grpc-js";
+
+class HelloClientImpl {
+  private grpcClient: HelloServiceClient;
+
+  constructor(apiBase: string) {
+    this.grpcClient = new HelloServiceClient(apiBase, ChannelCredentials.createInsecure());
+  }
+
+  async hello(name?: string): Promise<object> {
+    return new Promise((resolve, reject) => {
+      this.grpcClient.hello(HelloRequest.fromPartial({ name: name }), (err, resp) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(resp);
+        }
+      });
+    });
+  }
+}
+
+let helloClient: HelloClientImpl;
+
 export default defineEventHandler(async (event) => {
-  const { apiSecret } = useRuntimeConfig(event);
-  const { id } = getQuery(event);
+  const { name } = getQuery(event);
 
-  const result = await fetch(`https://dummyjson.com/quotes/${id}`, {
-    headers: {
-      Authentation: `Bearer: ${apiSecret}`,
-    },
-  });
+  if (!helloClient) {
+    const {
+      public: { apiBase },
+    } = useRuntimeConfig(event);
+    helloClient = new HelloClientImpl(apiBase);
+  }
 
-  return await result.json();
+  return helloClient.hello(name?.toString());
 });

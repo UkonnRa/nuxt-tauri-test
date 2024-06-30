@@ -1,0 +1,27 @@
+[package]
+name = "app-grpc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+async-trait = "0.1"
+backend-core = { path = "../backend-core" }
+chrono = "0.4"
+dotenv = "0.15"
+env_logger = "0.11"
+futures = "0.3"
+itertools = "0.13"
+log = "0.4"
+prost = "0.12"
+prost-types = "0.12"
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.38", features = ["macros", "rt-multi-thread"] }
+tonic = { version = "0.11", features = ["gzip"] }
+tonic-reflection = "0.11"
+uuid = { version = "1.9", features = ["serde", "macro-diagnostics"] }
+
+[build-dependencies]
+tonic-build = "0.11"

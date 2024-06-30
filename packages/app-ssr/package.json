@@ -13,11 +13,12 @@
     "lint:fix:eslint": "eslint . --fix"
   },
   "dependencies": {
-    "nuxt": "^3.12.2",
-    "primevue": "4.0.0-rc.3",
+    "@grpc/grpc-js": "^1.10.10",
+    "nuxt": "^3.12.3",
+    "primevue": "^4.0.0",
     "vue": "^3.4.31"
   },
   "devDependencies": {
-    "vue-tsc": "^2.0.22"
+    "vue-tsc": "^2.0.24"
   }
 }

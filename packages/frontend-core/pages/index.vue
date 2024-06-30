@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <AppMessage model-value="Default Value 2" />
-    <AppMessage model-value="Default Value 3" />
+  <div class="flex flex-col gap-2">
+    <HelloWorld :model-value="1" />
+    <HelloWorld :model-value="2" />
+    <HelloWorld :model-value="3" />
+    <HelloWorld :model-value="4" />
   </div>
 </template>

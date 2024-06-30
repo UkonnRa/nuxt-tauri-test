@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package whiterabbit.helloworld.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string message = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+service HelloService {
+  rpc Hello(HelloRequest) returns (HelloResponse);
+}

@@ -12,7 +12,7 @@
     "tauri": "tauri",
     "lint:tsc": "vue-tsc --noEmit",
     "lint:eslint": "eslint .",
-    "lint:fix:eslint": "eslint . --fix"
+    "test": "vitest run"
   },
   "dependencies": {
     "@primevue/themes": "^4.0.0",

@@ -13,7 +13,12 @@ const currentDir = dirname(fileURLToPath(import.meta.url));
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ["@primevue/nuxt-module", "@nuxtjs/tailwindcss", "@nuxt/eslint"],
+  modules: [
+    "@primevue/nuxt-module",
+    "@nuxtjs/tailwindcss",
+    "@nuxt/eslint",
+    "@nuxt/test-utils/module",
+  ],
   compatibilityDate: "2024-07-03",
   devtools: {
     enabled: true,

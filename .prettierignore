@@ -6,3 +6,4 @@ target/
 packages/app-tauri/src-tauri/capabilities/
 packages/app-tauri/src-tauri/gen/
 .output/
+packages/**/proto/gen/

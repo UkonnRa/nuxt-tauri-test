@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "postinstall": "husky",
-    "upgrade": "yarn upgrade-interactive && cargo update && cargo upgrade --incompatible --pinned",
+    "upgrade": "yarn upgrade-interactive && concurrently \"rimraf .yarn/cache node_modules/ yarn.lock; yarn\" \"cargo update && cargo upgrade --incompatible --pinned\"",
     "dev:tauri": "yarn workspace @white-rabbit/app-tauri run tauri dev",
     "dev:ssr": "yarn workspace @white-rabbit/app-ssr run dev",
     "lint:rs": "cargo fmt --check && cargo clippy",
@@ -90,7 +90,7 @@
     "vitest": "^1.6.0",
     "vue": "^3.4.31",
     "vue-eslint-parser": "^9.4.3",
-    "vue-tsc": "^2.0.24"
+    "vue-tsc": "^2.0.26"
   },
   "config": {
     "commitizen": {

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useElementBounding } from "@vueuse/core";
 
+// Side Menu uses absolute position, so flex gap is not usable
+const MARGIN_SIDE_MAIN = 8;
+
 const elToolbar = ref();
 const elSideMenu = ref();
 
@@ -43,9 +46,9 @@ const navigateToHome = () => {
       </Toolbar>
     </ClientOnly>
 
-    <main :style="{ paddingTop: `${toolbarHeight}px` }">
-      <AppSideMenu ref="elSideMenu" :style="{ paddingTop: `${toolbarHeight}px` }" />
-      <div :style="{ paddingLeft: `${elSideMenuWidth}px` }">
+    <main class="relative" :style="{ paddingTop: `${toolbarHeight}px` }">
+      <AppSideMenu ref="elSideMenu" />
+      <div :style="{ paddingLeft: `${elSideMenuWidth + MARGIN_SIDE_MAIN}px` }">
         <slot />
       </div>
     </main>

@@ -1,33 +1,66 @@
 <script setup lang="ts">
+import type { MenuItem } from "primevue/menuitem";
+
 const expending = ref(false);
-const width = computed(() => (expending.value ? 100 : 250));
+const width = computed(() => (expending.value ? 250 : 48));
+
+const expendingIcon = computed(() => {
+  return expending.value ? "fa-solid fa-chevron-left" : "fa-solid fa-chevron-right";
+});
 
 const toggleExpending = () => {
   expending.value = !expending.value;
 };
+
+const items: MenuItem[] = [
+  {
+    label: "Home",
+    icon: "fa-solid fa-house",
+  },
+  {
+    label: "Journal",
+    icon: "fa-solid fa-book",
+  },
+  {
+    label: "Accounts",
+    icon: "fa-solid fa-building-columns",
+  },
+  {
+    separator: true,
+  },
+  {
+    label: "Q & A",
+    icon: "fa-solid fa-circle-question",
+  },
+];
 </script>
 
 <template>
-  <div
-    :style="{ width: `${width}px` }"
-    class="fixed top-0 left-0 z-40 h-screen ease-in-out duration-150"
-  >
-    <div>Hello 1</div>
-    <div>Hello 2</div>
-    <div>Hello 3</div>
-    <div>Hello 4</div>
-    <div>Hello 5</div>
-    <div>Hello 6</div>
-    <div>Hello 7</div>
-    <div>Hello 8</div>
-    <div>Hello 9</div>
-    <div>Hello 10</div>
-    <Button icon="fa-solid fa-warning" class="w-full" @click="toggleExpending" />
+  <div class="fixed z-40">
+    <Menu :model="items" :style="{ width: `${width}px` }" class="ease-in-out duration-150">
+      <template #item="{ item, props }">
+        <a v-ripple v-tooltip="item.label" v-bind="props.action">
+          <span :class="item.icon" />
+          <span v-if="expending" class="truncate">{{ item.label }}</span>
+        </a>
+      </template>
+
+      <template #end>
+        <Button
+          v-tooltip="expending ? 'Shrink the menu' : 'Expand the menu'"
+          text
+          :icon="expendingIcon"
+          class="w-full"
+          @click="toggleExpending"
+        />
+      </template>
+    </Menu>
   </div>
 </template>
 
 <style lang="scss">
-div {
+.p-menu {
+  min-width: fit-content;
   transition-property: width;
 }
 </style>

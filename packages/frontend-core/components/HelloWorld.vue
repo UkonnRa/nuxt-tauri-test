@@ -15,7 +15,7 @@ const { data, status } = $helloClient.hello(idStr);
   <Card>
     <template #title>Data</template>
     <template #content>
-      <ProgressBar v-if="status === 'pending'" mode="indeterminate" style="height: 4px" />
+      <ProgressBar v-if="status === 'pending'" mode="indeterminate" class="h-2" />
       <div v-else class="flex flex-col gap-2">
         <div>
           <strong>Calling API:</strong>

@@ -19,6 +19,6 @@
     "vue": "^3.4.31"
   },
   "devDependencies": {
-    "vue-tsc": "^2.0.24"
+    "vue-tsc": "^2.0.26"
   }
 }

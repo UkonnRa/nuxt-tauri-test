@@ -1,12 +1,12 @@
 use super::{
-  command::{self, CommandCreate},
-  database::{
-    journal::{self, ActiveModel, Column, Model},
-    journal_tag,
-  },
+  command::{self, CommandBatch, CommandCreate, CommandDelete, CommandUpdate},
+  database::{journal, journal_tag},
   query, Command, Entity, Query,
 };
-use crate::models::{CommandHandler, ReadAggregate, WriteAggregate};
+use crate::{
+  error::{ErrorExistingEntity, ErrorNotFound},
+  models::{CommandHandler, ReadAggregate, WriteAggregate, FIELD_ID, FIELD_NAME},
+};
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use sea_orm::{
@@ -124,7 +124,10 @@ impl WriteAggregate for Aggregate {
     Ok(
       aggregates
         .into_iter()
-        .map(|root| Self { tags: tags.get(&root.id).cloned().unwrap_or_default(), ..root })
+        .map(|aggregate| Self {
+          tags: tags.get(&aggregate.id).cloned().unwrap_or_default(),
+          ..aggregate
+        })
         .collect(),
     )
   }
@@ -139,13 +142,13 @@ impl WriteAggregate for Aggregate {
     }
 
     let mut model_ids = HashSet::new();
-    let mut models: Vec<ActiveModel> = vec![];
+    let mut models: Vec<journal::ActiveModel> = vec![];
     let mut tags: Vec<journal_tag::ActiveModel> = vec![];
 
     for ref aggregate in aggregates {
       model_ids.insert(aggregate.id);
       models.push(
-        Model {
+        journal::Model {
           id: aggregate.id,
           created_date: aggregate.created_date,
           version: aggregate.version as u64 + 1,
@@ -170,15 +173,20 @@ impl WriteAggregate for Aggregate {
     // Update unique column name to temp value
     Entity::update_many()
       .col_expr(
-        Column::Name,
-        Expr::col((Entity, Column::Name)).binary(BinOper::Custom("||"), Expr::current_timestamp()),
+        journal::Column::Name,
+        Expr::col((Entity, journal::Column::Name))
+          .binary(BinOper::Custom("||"), Expr::current_timestamp()),
       )
-      .filter(Column::Id.is_in(model_ids.clone()))
+      .filter(journal::Column::Id.is_in(model_ids.clone()))
       .exec(db)
       .await?;
 
-    let mut on_conflict = OnConflict::column(Column::Id);
-    on_conflict.update_columns([Column::Name, Column::Description, Column::Unit]);
+    let mut on_conflict = OnConflict::column(journal::Column::Id);
+    on_conflict.update_columns([
+      journal::Column::Name,
+      journal::Column::Description,
+      journal::Column::Unit,
+    ]);
     Entity::insert_many(models).on_conflict(on_conflict).exec(db).await?;
 
     if !tags.is_empty() {
@@ -192,7 +200,7 @@ impl WriteAggregate for Aggregate {
     db: &impl ConnectionTrait,
     ids: impl IntoIterator<Item = Self::Id> + Send,
   ) -> crate::Result<()> {
-    Entity::delete_many().filter(Column::Id.is_in(ids)).exec(db).await?;
+    journal::Entity::delete_many().filter(journal::Column::Id.is_in(ids)).exec(db).await?;
     Ok(())
   }
 }
@@ -207,7 +215,25 @@ impl CommandHandler for Aggregate {
   ) -> crate::Result<HashSet<Self::Id>> {
     match command {
       Command::Create(command) => Self::create(db, vec![command]).await,
-      _ => todo!(),
+      Command::Update(command) => Self::update(db, vec![command]).await,
+      Command::Delete(CommandDelete { id }) => {
+        Self::delete(db, id).await?;
+        Ok(HashSet::default())
+      }
+      Command::Batch(CommandBatch { create, update, delete }) => {
+        let mut ids = HashSet::<Uuid>::new();
+
+        Self::delete(db, delete).await?;
+
+        for id in Self::update(db, update).await? {
+          ids.insert(id);
+        }
+
+        for id in Self::create(db, create).await? {
+          ids.insert(id);
+        }
+        Ok(ids)
+      }
     }
   }
 }
@@ -232,16 +258,16 @@ impl Aggregate {
     let existings =
       Self::find_all(db, Some(Query { name: existing_names, ..Default::default() }), None).await?;
 
-    // if !existings.is_empty() {
-    //   let existing_names = existings.iter().map(|model| model.name.clone()).sorted().join(", ");
+    if !existings.is_empty() {
+      let existing_names = existings.iter().map(|model| model.name.clone()).sorted().join(", ");
 
-    //   return Err(crate::Error::ExistingEntity(ErrorExistingEntity {
-    //     entity: TYPE.to_string(),
-    //     values: vec![(FIELD_NAME.to_string(), existing_names)],
-    //   }));
-    // }
+      return Err(crate::Error::ExistingEntity(ErrorExistingEntity {
+        entity: super::TYPE.to_string(),
+        values: vec![(FIELD_NAME.to_string(), existing_names)],
+      }));
+    }
 
-    let roots: Vec<_> = commands_map
+    let aggregates: Vec<_> = commands_map
       .into_values()
       .map(|command| {
         let aggregate = Aggregate {
@@ -255,6 +281,94 @@ impl Aggregate {
         aggregate.validate().map(|_| aggregate)
       })
       .try_collect()?;
-    Self::save(db, roots).await
+    Self::save(db, aggregates).await
+  }
+
+  pub async fn update(
+    db: &impl ConnectionTrait,
+    commands: Vec<CommandUpdate>,
+  ) -> crate::Result<HashSet<Uuid>> {
+    if commands.is_empty() {
+      return Ok(HashSet::default());
+    }
+
+    let mut name_mappings = HashMap::new();
+    let mut model_ids = HashSet::new();
+
+    for command in &commands {
+      if !command.name.is_empty() {
+        name_mappings.insert(command.name.clone(), command.id);
+      }
+      model_ids.insert(command.id);
+    }
+
+    let existings_by_name = if name_mappings.is_empty() {
+      HashSet::default()
+    } else {
+      Self::find_all(
+        db,
+        Some(Query { name: name_mappings.keys().cloned().collect(), ..Default::default() }),
+        None,
+      )
+      .await?
+    };
+
+    for model in existings_by_name {
+      // If so, throw the error:
+      //  1. the name is already is system
+      //  2. AND, the updating model is not the same with the existing model already with the name
+      //  3. AND, the existing model will not change the name
+      if let Some(updating_id) = name_mappings.get(&model.name) {
+        if updating_id != &model.id && !name_mappings.values().contains(&model.id) {
+          return Err(crate::Error::ExistingEntity(ErrorExistingEntity {
+            entity: super::TYPE.to_string(),
+            values: vec![(FIELD_NAME.to_string(), model.name.clone())],
+          }));
+        }
+      }
+    }
+
+    let mut models = Self::find_all(db, Some(Query { id: model_ids, ..Default::default() }), None)
+      .await?
+      .into_iter()
+      .map(|model| (model.id, model))
+      .collect::<HashMap<_, _>>();
+
+    let mut updated = HashMap::new();
+    for command in commands {
+      let model = models.get(&command.id).ok_or_else(|| {
+        crate::Error::NotFound(ErrorNotFound {
+          entity: super::TYPE.to_string(),
+          values: vec![(FIELD_ID.to_string(), command.id.to_string())],
+        })
+      })?;
+
+      if command.name.is_empty()
+        && command.description.is_none()
+        && command.unit.is_empty()
+        && command.tags.is_none()
+      {
+        continue;
+      }
+
+      let model = Aggregate {
+        name: if command.name.is_empty() { model.name.clone() } else { command.name },
+        description: if let Some(description) = command.description {
+          description
+        } else {
+          model.description.clone()
+        },
+        unit: if command.unit.is_empty() { model.unit.clone() } else { command.unit },
+        tags: if let Some(tags) = command.tags { tags } else { model.tags.clone() },
+        ..model.clone()
+      };
+
+      model.validate()?;
+
+      models.insert(model.id, model.clone());
+      updated.insert(model.id, model);
+    }
+
+    Self::save(db, updated.into_values()).await
   }
 }

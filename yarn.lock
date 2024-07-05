@@ -3895,7 +3895,7 @@ __metadata:
     internal-ip: "npm:^8.0.0"
     nuxt: "npm:^3.12.3"
     primevue: "npm:^4.0.0"
-    tailwindcss-primeui: "npm:^0.3.2"
+    tailwindcss-primeui: "npm:^0.3.4"
     typescript: "npm:^5.5.3"
     vite: "npm:^5.3.3"
     vue: "npm:^3.4.31"
@@ -3914,7 +3914,7 @@ __metadata:
     "@vueuse/core": "npm:^10.11.0"
     nuxt: "npm:^3.12.3"
     primevue: "npm:^4.0.0"
-    tailwindcss-primeui: "npm:^0.3.2"
+    tailwindcss-primeui: "npm:^0.3.4"
     vitest: "npm:^1.6.0"
     vue: "npm:^3.4.31"
     vue-tsc: "npm:^2.0.26"
@@ -12029,12 +12029,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss-primeui@npm:^0.3.2":
-  version: 0.3.2
-  resolution: "tailwindcss-primeui@npm:0.3.2"
+"tailwindcss-primeui@npm:^0.3.4":
+  version: 0.3.4
+  resolution: "tailwindcss-primeui@npm:0.3.4"
   peerDependencies:
     tailwindcss: ">=3.1.0"
-  checksum: 10/3b792c46861d6d20d65101bd76e9d5b246af799efaf9aff0a75687f66a08812331d464f3bba85886c43d398f489dc93d1758714a2d871b06102f5d40e78b7d36
+  checksum: 10/ce3ed4a4c4905e4e416d4d868cf4e030e172657389813f6818b129e4cd12b9c9a5b5463c849e3fa1a6c01d22db4739053fb581a30ec89cf2f518cc86e23f934c
   languageName: node
   linkType: hard
 

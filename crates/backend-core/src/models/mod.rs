@@ -1,10 +1,25 @@
-use std::{collections::HashSet, hash::Hash};
+pub mod journal;
 
 use chrono::{DateTime, Utc};
 use sea_orm::{sea_query::IntoCondition, ConnectionTrait};
 use serde::{Deserialize, Serialize};
+use std::{collections::HashSet, hash::Hash};
 
-pub mod journal;
+pub const FIELD_ID: &str = "id";
+pub const FIELD_NAME: &str = "name";
+pub const FIELD_DESCRIPTION: &str = "description";
+pub const FIELD_TAGS: &str = "tags";
+pub const FIELD_TAG_EACH: &str = "tags.each";
+pub const FIELD_UNIT: &str = "unit";
+pub const FIELD_JOURNAL: &str = "journal";
+pub const FIELD_TYPE: &str = "type";
+
+pub const MIN_NAME_LENGTH: usize = 6;
+pub const MAX_NAME_LENGTH: usize = 63;
+pub const MAX_DESCRIPTION_LENGTH: usize = 1023;
+pub const MIN_SHORT_TEXT_LENGTH: usize = 2;
+pub const MAX_SHORT_TEXT_LENGTH: usize = 15;
+pub const MAX_TAGS_LENGTH: usize = 7;
 
 #[async_trait::async_trait]
 pub trait ReadAggregate: Sized + Hash + Default {

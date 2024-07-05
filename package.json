@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "postinstall": "husky",
-    "upgrade": "yarn upgrade-interactive && concurrently \"rimraf .yarn/cache node_modules/ yarn.lock; yarn\" \"cargo update && cargo upgrade --incompatible --pinned\"",
+    "upgrade": "yarn upgrade-interactive && concurrently \"rimraf '.yarn/cache' 'node_modules/' 'yarn.lock'; yarn\" \"cargo update && cargo upgrade --incompatible --pinned\"",
     "dev:tauri": "yarn workspace @white-rabbit/app-tauri run tauri dev",
     "dev:ssr": "yarn workspace @white-rabbit/app-ssr run dev",
     "lint:rs": "cargo fmt --check && cargo clippy",

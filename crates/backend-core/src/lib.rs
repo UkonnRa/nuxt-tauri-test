@@ -1,3 +1,8 @@
+pub mod error;
+pub mod models;
+
+pub use error::Result;
+
 use tokio::time::{sleep, Duration};
 
 pub async fn create_payload() -> uuid::Uuid {

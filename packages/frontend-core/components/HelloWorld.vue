@@ -5,17 +5,37 @@ defineProps<{
 
 const config = useRuntimeConfig();
 const id = ref(1);
-const { $helloClient } = useNuxtApp();
-const idStr = computed(() => `${id.value}`);
+const command = computed(() => ({
+  create: {
+    name: "New Journal: " + id.value,
+    description: "New Desc",
+    unit: "CNY",
+    tags: ["tag1", "tag2"],
+  },
+}));
+watch(command, (newCommand) => {
+  console.log("New Command:", newCommand);
+});
 
-const { data, status } = $helloClient.hello(idStr);
+const { $journalClient } = useNuxtApp();
+
+const { data: ids, status: idsStatus } = $journalClient.handleCommand(command);
+
+const query = computed(() => ({
+  id: ids.value,
+}));
+const { data: journals, status: journalsStatus } = $journalClient.findAll(query);
 </script>
 
 <template>
   <Card>
     <template #title>Data</template>
     <template #content>
-      <ProgressBar v-if="status === 'pending'" mode="indeterminate" class="h-2" />
+      <ProgressBar
+        v-if="idsStatus === 'pending' || journalsStatus === 'pending'"
+        mode="indeterminate"
+        class="h-2"
+      />
       <div v-else class="flex flex-col gap-2">
         <div>
           <strong>Calling API:</strong>
@@ -25,7 +45,8 @@ const { data, status } = $helloClient.hello(idStr);
         <div>
           <strong>Data Loaded:</strong>
           <code>
-            <pre>{{ JSON.stringify(data, null, 2) }}</pre>
+            <pre>{{ JSON.stringify(ids, null, 2) }}</pre>
+            <pre>{{ JSON.stringify(journals, null, 2) }}</pre>
           </code>
         </div>
       </div>

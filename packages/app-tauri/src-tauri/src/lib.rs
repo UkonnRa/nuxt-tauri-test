@@ -2,7 +2,7 @@ use chrono::DateTime;
 
 #[tauri::command]
 async fn greet(name: String) -> String {
-  let id = backend_core::create_payload().await;
+  let id = uuid::Uuid::now_v7();
   let (secs, nsecs) = id.get_timestamp().unwrap().to_unix();
   let timestamp = DateTime::from_timestamp(secs as i64, nsecs).unwrap();
 

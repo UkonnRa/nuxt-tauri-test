@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package whiterabbit.journal.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/wrappers.proto";
+
+message Journal {
+  string id = 1;
+  google.protobuf.Timestamp created_date = 2;
+  int64 version = 3;
+  string name = 4;
+  string description = 5;
+  string unit = 6;
+  repeated string tags = 7;
+}
+
+message JournalQuery {
+  repeated string id = 1;
+  repeated string name = 2;
+  string unit = 3;
+  repeated string tags = 4;
+  string full_text = 5;
+}
+
+message JournalCommand {
+  oneof command {
+    JournalCommandCreate create = 1;
+    JournalCommandUpdate update = 2;
+    JournalCommandDelete delete = 3;
+    JournalCommandBatch batch = 4;
+  }
+}
+
+message JournalCommandCreate {
+  string name = 1;
+  string description = 2;
+  string unit = 3;
+  repeated string tags = 4;
+}
+
+message JournalCommandUpdate {
+  string id = 1;
+  string name = 2;
+  google.protobuf.StringValue description = 3;
+  string unit = 4;
+  google.protobuf.ListValue tags = 5;
+}
+
+message JournalCommandDelete {
+  repeated string id = 1;
+}
+
+message JournalCommandBatch {
+  repeated JournalCommandCreate create = 1;
+  repeated JournalCommandUpdate update = 2;
+  repeated string delete = 3;
+}
+
+message FindAllRequest {
+  JournalQuery query = 1;
+}
+
+message FindAllResponse {
+  repeated Journal values = 1;
+}
+
+message FindByIdRequest {
+  string id = 1;
+}
+
+message FindByIdResponse {
+  Journal value = 1;
+}
+
+message HandleCommandRequest {
+  JournalCommand command = 1;
+}
+
+message HandleCommandResponse {
+  repeated string values = 1;
+}
+
+service JournalService {
+  rpc FindAll(FindAllRequest) returns (FindAllResponse);
+  rpc FindById(FindByIdRequest) returns (FindByIdResponse);
+  rpc HandleCommand(HandleCommandRequest) returns (HandleCommandResponse);
+}

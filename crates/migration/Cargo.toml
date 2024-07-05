@@ -1,0 +1,20 @@
+[package]
+name = "migration"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-trait = "0.1"
+backend-core = { path = "../backend-core" }
+chrono = { version = "0.4", features = [ "serde" ] }
+rand = "0.8"
+rust_decimal = "1.35"
+tokio = { version = "1.38", features = ["rt", "macros"] }
+
+[dependencies.sea-orm-migration]
+version = "0.12"
+features = [
+   "runtime-tokio-rustls",
+   "sqlx-sqlite",
+]

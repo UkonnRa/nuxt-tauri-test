@@ -1,11 +1,11 @@
 mod aggregate;
 mod command;
-mod database;
+pub mod database;
 mod presentation;
 mod query;
 
 pub use aggregate::Aggregate;
-pub use command::Command;
+pub use command::*;
 pub use database::journal::Entity;
 pub use query::Query;
 

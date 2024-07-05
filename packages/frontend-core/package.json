@@ -17,11 +17,13 @@
     "nuxt": "^3.12.3",
     "primevue": "^4.0.0",
     "tailwindcss-primeui": "^0.3.4",
+    "uuid": "^10.0.0",
     "vue": "^3.4.31"
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.12.0",
     "@primevue/nuxt-module": "^4.0.0",
+    "@types/uuid": "^10.0.0",
     "vitest": "^1.6.0",
     "vue-tsc": "^2.0.26"
   }

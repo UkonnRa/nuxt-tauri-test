@@ -85,7 +85,7 @@ pub trait Presentation: Sized + Serialize + for<'a> Deserialize<'a> {
 pub trait CommandHandler: WriteAggregate {
   type Command: Send + Sync;
 
-  async fn handle(
+  async fn handle_command(
     db: &impl ConnectionTrait,
     command: Self::Command,
   ) -> crate::Result<HashSet<Self::Id>>;

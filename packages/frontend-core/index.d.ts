@@ -1,18 +1,14 @@
-import type { AsyncData } from "#app";
-
-export interface HelloClient {
-  hello(name: Ref<string>): AsyncData<unknown, unknown>;
-}
+import type { JournalClient } from "./services/journal";
 
 declare module "#app" {
   interface NuxtApp {
-    $helloClient: HelloClient;
+    $journalClient: JournalClient;
   }
 }
 
 declare module "vue" {
   interface ComponentCustomProperties {
-    $helloClient: HelloClient;
+    $journalClient: JournalClient;
   }
 }
 

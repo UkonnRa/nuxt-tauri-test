@@ -151,7 +151,7 @@ impl WriteAggregate for Aggregate {
         journal::Model {
           id: aggregate.id,
           created_date: aggregate.created_date,
-          version: aggregate.version as u64 + 1,
+          version: aggregate.version as u32 + 1,
           name: aggregate.name.to_string(),
           description: aggregate.description.to_string(),
           unit: aggregate.unit.to_string(),
@@ -209,7 +209,7 @@ impl WriteAggregate for Aggregate {
 impl CommandHandler for Aggregate {
   type Command = command::Command;
 
-  async fn handle(
+  async fn handle_command(
     db: &impl ConnectionTrait,
     command: Self::Command,
   ) -> crate::Result<HashSet<Self::Id>> {

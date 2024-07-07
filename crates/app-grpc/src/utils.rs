@@ -15,17 +15,6 @@ pub(crate) fn map_err(value: backend_core::Error) -> Status {
   Status::with_details(code, value.detail, details.into())
 }
 
-pub(crate) fn encode_strings(items: impl IntoIterator<Item = impl ToString>) -> ListValue {
-  ListValue {
-    values: items
-      .into_iter()
-      .map(|v| prost_types::Value {
-        kind: Some(prost_types::value::Kind::StringValue(v.to_string())),
-      })
-      .collect::<Vec<_>>(),
-  }
-}
-
 pub(crate) fn decode_strings(value: ListValue) -> HashSet<String> {
   value
     .values

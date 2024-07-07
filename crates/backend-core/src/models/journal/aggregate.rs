@@ -45,9 +45,16 @@ impl Hash for Aggregate {
 
 impl Default for Aggregate {
   fn default() -> Self {
+    let id = Uuid::now_v7();
+    let created_date = id
+      .get_timestamp()
+      .map(|t| t.to_unix())
+      .and_then(|(secs, nsecs)| DateTime::from_timestamp(secs as i64, nsecs))
+      .unwrap_or_else(Utc::now);
+
     Self {
-      id: Uuid::now_v7(),
-      created_date: Utc::now(),
+      id,
+      created_date,
       version: 0,
       name: Default::default(),
       description: Default::default(),

@@ -27,3 +27,7 @@ uuid = { version = "1.9", features = ["serde", "macro-diagnostics"] }
 
 [build-dependencies]
 tonic-build = "0.11"
+
+[dev-dependencies]
+migration = { path = "../migration" }
+test-suite = { path = "../test-suite" }

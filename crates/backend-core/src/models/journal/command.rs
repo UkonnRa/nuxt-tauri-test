@@ -44,7 +44,7 @@ pub struct CommandDelete {
   pub id: HashSet<Uuid>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct CommandBatch {
   #[serde(default)]
   pub create: Vec<CommandCreate>,

@@ -1,0 +1,20 @@
+[package]
+name = "test-suite"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+anyhow = "1.0"
+async-trait = "0.1"
+backend-core = { path = "../backend-core" }
+chrono = { version = "0.4", features = [ "serde" ] }
+futures = "0.3"
+log = "0.4"
+rand = "0.8"
+rust_decimal = "1.35"
+sea-orm = { version = "0.12", features = ["macros"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.38", features = ["rt", "macros"] }
+uuid = { version = "1.9", features = ["serde",  "macro-diagnostics"] }

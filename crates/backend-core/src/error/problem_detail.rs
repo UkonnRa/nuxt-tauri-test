@@ -1,3 +1,5 @@
+use std::fmt::{Display, Formatter};
+
 use http::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -12,6 +14,14 @@ pub struct ProblemDetailDef {
   #[serde(flatten)]
   pub extra: Value,
 }
+
+impl Display for ProblemDetailDef {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    f.write_str(&self.detail)
+  }
+}
+
+impl std::error::Error for ProblemDetailDef {}
 
 pub trait ProblemDetail:
   Into<ProblemDetailDef> + Serialize + for<'a> Deserialize<'a> + Sync + Send

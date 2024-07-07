@@ -78,3 +78,46 @@ pub async fn test_create_journal_conflict_name(ctx: TestContext) -> anyhow::Resu
 
   Ok(())
 }
+
+pub async fn test_update_journal(ctx: TestContext) -> anyhow::Result<()> {
+  // setup
+  let command = journal::CommandCreate {
+    name: "New Name".to_string(),
+    description: "New Desc".to_string(),
+    unit: "New Unit".to_string(),
+    tags: HashSet::from_iter(["Tag 1".to_string(), "Tag 2".to_string()]),
+  };
+
+  let created_id: Uuid = ctx
+    .journal_client
+    .handle_command(journal::Command::Create(command.clone()))
+    .await?
+    .into_iter()
+    .next()
+    .unwrap()
+    .parse()
+    .unwrap();
+
+  let update_command = journal::CommandUpdate {
+    id: created_id,
+    name: "Updated Name".to_string(),
+    description: None,
+    unit: Default::default(),
+    tags: Some(HashSet::from_iter(["Tag 4".to_string(), "Tag 6".to_string()])),
+  };
+
+  ctx.journal_client.handle_command(journal::Command::Update(update_command.clone())).await?;
+  let result = ctx
+    .journal_client
+    .find_one(Some(journal::Query { id: HashSet::from_iter([created_id]), ..Default::default() }))
+    .await?
+    .unwrap();
+
+  assert_eq!(result.id, created_id);
+  assert_eq!(result.name, update_command.name);
+  assert_eq!(result.description, command.description);
+  assert_eq!(result.unit, command.unit);
+  assert_eq!(result.tags, update_command.tags.unwrap());
+
+  Ok(())
+}

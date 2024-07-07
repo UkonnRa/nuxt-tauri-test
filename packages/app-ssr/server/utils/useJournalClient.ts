@@ -6,7 +6,7 @@ import {
   HandleCommandRequest,
 } from "../proto/gen/whiterabbit/journal/v1/journal";
 import { ChannelCredentials } from "@grpc/grpc-js";
-import { type ReadAggregate } from "@white-rabbit/frontend-core/services";
+import type { ReadAggregate } from "@white-rabbit/frontend-core/services";
 import {
   Journal,
   type JournalCommand,

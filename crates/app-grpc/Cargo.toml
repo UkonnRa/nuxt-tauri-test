@@ -14,19 +14,19 @@ futures = "0.3"
 itertools = "0.13"
 log = "0.4"
 migration = { path = "../migration" }
-prost = "0.12"
-prost-types = "0.12"
+prost = "0.13"
+prost-types = "0.13"
 rand = "0.8"
-sea-orm = { version = "0.12", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
+sea-orm = { version = "1.1", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tokio = { version = "1.38", features = ["macros", "rt-multi-thread"] }
-tonic = { version = "0.11", features = ["gzip"] }
-tonic-reflection = "0.11"
-uuid = { version = "1.9", features = ["serde", "macro-diagnostics"] }
+tokio = { version = "1.41", features = ["macros", "rt-multi-thread"] }
+tonic = { version = "0.12", features = ["gzip"] }
+tonic-reflection = "0.12"
+uuid = { version = "1.11", features = ["serde", "macro-diagnostics"] }
 
 [build-dependencies]
-tonic-build = "0.11"
+tonic-build = "0.12"
 
 [dev-dependencies]
 migration = { path = "../migration" }

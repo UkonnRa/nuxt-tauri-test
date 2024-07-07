@@ -24,10 +24,12 @@ export class Journal extends WriteAggregate {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface JournalQuery {}
 
 export type JournalCommand = object;
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface JournalService extends WriteService<Journal, JournalQuery, JournalCommand> {}
 
 export interface JournalClient {

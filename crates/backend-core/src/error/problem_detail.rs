@@ -23,9 +23,7 @@ impl Display for ProblemDetailDef {
 
 impl std::error::Error for ProblemDetailDef {}
 
-pub trait ProblemDetail:
-  Into<ProblemDetailDef> + Serialize + for<'a> Deserialize<'a> + Sync + Send
-{
+pub trait ProblemDetail: Into<ProblemDetailDef> + Serialize + Sync + Send {
   fn typ() -> &'static str;
 
   fn title() -> &'static str;
@@ -52,6 +50,9 @@ where
 
 #[cfg(test)]
 mod test {
+
+  use serde_json::json;
+
   use crate::error::{
     ErrorExistingEntity, ErrorInternal, ErrorNotFound, ErrorOutOfRange, ErrorRequiredField,
   };
@@ -60,41 +61,123 @@ mod test {
   #[test]
   fn test_serde() -> anyhow::Result<()> {
     let errors = vec![
-      crate::Error::NotFound(ErrorNotFound {
-        entity: journal::TYPE.to_string(),
-        values: vec![
-          (FIELD_ID.to_string(), "ID1".to_string()),
-          (FIELD_NAME.to_string(), "Journal 1".to_string()),
-        ],
-      }),
-      crate::Error::ExistingEntity(ErrorExistingEntity {
-        entity: journal::TYPE.to_string(),
-        values: vec![
-          (FIELD_ID.to_string(), "ID2".to_string()),
-          (FIELD_NAME.to_string(), "Journal 2".to_string()),
-        ],
-      }),
-      crate::Error::OutOfRange(ErrorOutOfRange {
-        entity: journal::TYPE.to_string(),
-        field: FIELD_NAME.to_string(),
-        start: Some(MIN_NAME_LENGTH.to_string()),
-        end: None,
-      }),
-      crate::Error::RequiredField(ErrorRequiredField {
-        entity: journal::TYPE.to_string(),
-        field: FIELD_NAME.to_string(),
-      }),
-      crate::Error::Internal(ErrorInternal { message: "Invalid DB Connection".to_string() }),
+      (
+        crate::Error::NotFound(ErrorNotFound {
+          entity: journal::TYPE.to_string(),
+          values: vec![
+            (FIELD_ID.to_string(), "ID1".to_string()),
+            (FIELD_NAME.to_string(), "Journal 1".to_string()),
+          ],
+        }),
+        json!({
+          "type": "urn:white-rabbit:error:not-found",
+          "title": "Entity Not Found",
+          "status": 404,
+          "detail": "Entity[Journal, id = ID1, name = Journal 1] not found",
+          "entity": "Journal",
+          "values": [
+            ["id", "ID1"],
+            ["name", "Journal 1"],
+          ]
+        }),
+      ),
+      (
+        crate::Error::ExistingEntity(ErrorExistingEntity {
+          entity: journal::TYPE.to_string(),
+          values: vec![
+            (FIELD_ID.to_string(), "ID2".to_string()),
+            (FIELD_NAME.to_string(), "Journal 2".to_string()),
+          ],
+        }),
+        json!({
+          "type": "urn:white-rabbit:error:existing-entity",
+          "title": "Entity Already Exists",
+          "status": 400,
+          "detail": "Entity[Journal, id = ID2, name = Journal 2] already exists",
+          "entity": "Journal",
+          "values": [
+            ["id", "ID2"],
+            ["name", "Journal 2"],
+          ]
+        }),
+      ),
+      (
+        crate::Error::OutOfRange(ErrorOutOfRange {
+          entity: journal::TYPE.to_string(),
+          field: FIELD_NAME.to_string(),
+          start: Some(MIN_NAME_LENGTH.to_string()),
+          end: None,
+        }),
+        json!({
+          "type": "urn:white-rabbit:error:out-of-range",
+          "title": "Value Out of Range",
+          "status": 400,
+          "detail": "Field[name] of Entity[Journal] should in Range[start = 6, end = ]",
+          "entity": "Journal",
+          "field": "name",
+          "start": "6",
+          "end": null,
+        }),
+      ),
+      (
+        crate::Error::RequiredField(ErrorRequiredField {
+          entity: journal::TYPE.to_string(),
+          field: FIELD_NAME.to_string(),
+        }),
+        json!({
+          "type": "urn:white-rabbit:error:required-field",
+          "title": "Required Field",
+          "status": 400,
+          "detail": "Field[name] of Entity[Journal] is required",
+          "entity": "Journal",
+          "field": "name",
+        }),
+      ),
+      (
+        crate::Error::Internal(ErrorInternal { message: "Invalid DB Connection".to_string() }),
+        json!({
+          "type": "urn:white-rabbit:error:internal",
+          "title": "Internal Error",
+          "status": 500,
+          "detail": "Internal Error: Invalid DB Connection",
+          "message": "Invalid DB Connection",
+        }),
+      ),
     ];
 
-    for err in errors {
-      let serded = serde_json::to_string_pretty(&err)?;
+    // let errors = vec![
+    //   crate::Error::NotFound(ErrorNotFound {
+    //     entity: journal::TYPE.to_string(),
+    //     values: vec![
+    //       (FIELD_ID.to_string(), "ID1".to_string()),
+    //       (FIELD_NAME.to_string(), "Journal 1".to_string()),
+    //     ],
+    //   }),
+    //   crate::Error::ExistingEntity(ErrorExistingEntity {
+    //     entity: journal::TYPE.to_string(),
+    //     values: vec![
+    //       (FIELD_ID.to_string(), "ID2".to_string()),
+    //       (FIELD_NAME.to_string(), "Journal 2".to_string()),
+    //     ],
+    //   }),
+    //   crate::Error::OutOfRange(ErrorOutOfRange {
+    //     entity: journal::TYPE.to_string(),
+    //     field: FIELD_NAME.to_string(),
+    //     start: Some(MIN_NAME_LENGTH.to_string()),
+    //     end: None,
+    //   }),
+    //   crate::Error::RequiredField(ErrorRequiredField {
+    //     entity: journal::TYPE.to_string(),
+    //     field: FIELD_NAME.to_string(),
+    //   }),
+    //   crate::Error::Internal(ErrorInternal { message: "Invalid DB Connection".to_string() }),
+    // ];
+
+    for (err, detail) in errors {
+      let serded = serde_json::to_value(&err)?;
       println!("Serded: {}", serded);
 
-      let deserded: crate::Error = serde_json::from_str(&serded)?;
-      println!("Desered Err: {:#?}", deserded);
-
-      assert_eq!(err, deserded);
+      assert_eq!(serded, detail);
     }
 
     Ok(())

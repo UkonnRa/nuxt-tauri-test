@@ -3,6 +3,6 @@ import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt(
   {
-    ignores: ["**/proto/gen/"]
+    ignores: ["**/proto/gen/", "coverage/"]
   },
 )

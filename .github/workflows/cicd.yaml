@@ -1,0 +1,79 @@
+name: CI/CD
+
+on: [pull_request, push]
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: "macos-latest" # for Arm based macs (M1 and above).
+            target: "aarch64-apple-darwin"
+          - platform: "macos-latest" # for Intel based macs.
+            target: "x86_64-apple-darwin"
+          - platform: "ubuntu-latest"
+            target: "x86_64-unknown-linux-gnu"
+          - platform: "windows-latest"
+            target: "x86_64-pc-windows-msvc"
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Prerequisites for Linux
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: Test and coverage
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          rustup toolchain install nightly
+          cargo install grcov
+          yarn && yarn lint && yarn test:coverage
+      - name: Test only for other Systems
+        if: matrix.platform != 'ubuntu-latest'
+        run: yarn && yarn lint && yarn test
+      # - name: Push coverage to Codecov
+      #   if: matrix.platform == 'ubuntu-latest'
+      #   uses: codecov/codecov-action@v4
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      #   with:
+      #     files: target/debug/coverage/lcov.info,coverage/coverage-final.json
+      # - name: Push coverage to Codacy
+      #   if: matrix.platform == 'ubuntu-latest'
+      #   uses: codacy/codacy-coverage-reporter-action@v1
+      #   env:
+      #     CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      #   with:
+      #     project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      #     coverage-reports: target/debug/coverage/lcov.info,coverage/coverage-final.json
+      # - name: SonarCloud Scan
+      #   if: matrix.platform == 'ubuntu-latest'
+      #   uses: sonarsource/sonarcloud-github-action@master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Build release
+        run: |
+          yarn workspace @white-rabbit/app-tauri tauri info
+          rustup target list --installed
+          yarn build && yarn build:tauri --target ${{ matrix.target }}

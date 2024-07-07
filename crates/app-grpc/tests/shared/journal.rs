@@ -90,7 +90,10 @@ impl JournalClientImpl {
     Ok(Self {
       _db: db,
       grpc_client: Mutex::new(
-        JournalServiceClient::connect(format!("http://{}", api_url.to_string())).await?,
+        super::backoff_connect(|| {
+          JournalServiceClient::connect(format!("http://{}", api_url.to_string()))
+        })
+        .await?,
       ),
     })
   }

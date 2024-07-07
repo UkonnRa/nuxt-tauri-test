@@ -1,13 +1,12 @@
 pub mod error;
 pub mod models;
 
+use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use std::env;
 
 pub use error::Error;
 
 pub type Result<T> = std::result::Result<T, error::Error>;
-
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
 pub async fn init(filename: &str) -> Result<DatabaseConnection> {
   let _ = dotenv::from_filename(filename);

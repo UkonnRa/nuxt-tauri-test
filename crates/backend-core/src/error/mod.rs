@@ -5,8 +5,7 @@ pub use problem_detail::*;
 use http::StatusCode;
 use itertools::Itertools;
 use sea_orm::DbErr;
-use serde::de::Error as SerdeError;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize, Serializer};
 
 #[derive(thiserror::Error, Debug, PartialEq, Eq, Clone)]
 pub enum Error {
@@ -47,29 +46,6 @@ impl Serialize for Error {
   }
 }
 
-impl<'a> Deserialize<'a> for Error {
-  fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-  where
-    D: Deserializer<'a>,
-  {
-    let def = ProblemDetailDef::deserialize(deserializer)?;
-
-    if def.typ == ErrorNotFound::typ() {
-      Ok(Error::NotFound(serde_json::from_value(def.extra).unwrap()))
-    } else if def.typ == ErrorExistingEntity::typ() {
-      Ok(Error::ExistingEntity(serde_json::from_value(def.extra).unwrap()))
-    } else if def.typ == ErrorOutOfRange::typ() {
-      Ok(Error::OutOfRange(serde_json::from_value(def.extra).unwrap()))
-    } else if def.typ == ErrorRequiredField::typ() {
-      Ok(Error::RequiredField(serde_json::from_value(def.extra).unwrap()))
-    } else if def.typ == ErrorInternal::typ() {
-      Ok(Error::Internal(serde_json::from_value(def.extra).unwrap()))
-    } else {
-      Err(SerdeError::custom(format!("Invalid Error type: {}", def.typ)))
-    }
-  }
-}
-
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -100,7 +76,7 @@ impl ProblemDetail for ErrorNotFound {
   }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
 pub struct ErrorExistingEntity {
   pub entity: String,
   pub values: Vec<(String, String)>,
@@ -128,7 +104,7 @@ impl ProblemDetail for ErrorExistingEntity {
   }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
 pub struct ErrorOutOfRange {
   pub entity: String,
   pub field: String,
@@ -151,13 +127,16 @@ impl ProblemDetail for ErrorOutOfRange {
 
   fn detail(&self) -> String {
     format!(
-      "Field[{}] of Entity[{}] should in Range[start = {:?}, end = {:?}]",
-      self.field, self.entity, self.start, self.end,
+      "Field[{}] of Entity[{}] should in Range[start = {}, end = {}]",
+      self.field,
+      self.entity,
+      self.start.clone().unwrap_or_default(),
+      self.end.clone().unwrap_or_default(),
     )
   }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
 pub struct ErrorRequiredField {
   pub entity: String,
   pub field: String,
@@ -181,7 +160,7 @@ impl ProblemDetail for ErrorRequiredField {
   }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
 pub struct ErrorInternal {
   pub message: String,
 }
@@ -196,7 +175,7 @@ impl ProblemDetail for ErrorInternal {
   }
 
   fn status() -> StatusCode {
-    StatusCode::BAD_REQUEST
+    StatusCode::INTERNAL_SERVER_ERROR
   }
 
   fn detail(&self) -> String {

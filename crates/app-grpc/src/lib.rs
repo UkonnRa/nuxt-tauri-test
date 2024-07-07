@@ -3,7 +3,8 @@ mod utils;
 
 use sea_orm::DatabaseConnection;
 use std::sync::Arc;
-use tonic::transport::{server::Routes, Server};
+use tonic::service::Routes;
+use tonic::transport::Server;
 use tonic_reflection::server::Builder;
 
 pub async fn serve(db: Arc<DatabaseConnection>, api_url: impl ToString) -> anyhow::Result<()> {
@@ -13,7 +14,7 @@ pub async fn serve(db: Arc<DatabaseConnection>, api_url: impl ToString) -> anyho
   let routes = Routes::default();
   let (reflection, routes) = crate::journal::init(reflection, routes, db);
 
-  let reflection = reflection.build().unwrap();
+  let reflection = reflection.build_v1()?;
   Server::builder()
     .add_routes(routes)
     .add_service(reflection)
